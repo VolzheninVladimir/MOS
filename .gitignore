@@ -26,3 +26,5 @@ Makefile*
 proguard/
 # Folders, which not related to the project
 Lections/
+# Files that are not required for projects
+.gitignore
