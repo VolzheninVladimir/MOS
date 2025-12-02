@@ -6,4 +6,5 @@
 
 ## Лабораторные работы
 4. SingleActivityApp - реализация задачи на использование структуры SingleActivity
-5. Contacts App - реализация задачи на использование Recycle view
+5. ContactsApp - реализация задачи на использование Recycle view
+6. ProducerConsumer - реализация задачи на многопоточность
