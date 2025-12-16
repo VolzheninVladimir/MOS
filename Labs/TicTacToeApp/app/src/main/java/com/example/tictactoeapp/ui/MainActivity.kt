@@ -3,45 +3,48 @@ package com.example.tictactoeapp.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.tictactoeapp.ui.theme.TicTacToeAppTheme
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tictactoeapp.ui.screen.MenuContract
+import com.example.tictactoeapp.ui.screen.MenuScreen
+import com.example.tictactoeapp.ui.screen.TicTacToeScreen
 
+sealed class Screen {
+    object Menu : Screen()
+    object GameHuman : Screen()
+    object GameComputer : Screen()
+}
+
+
+/**
+ * Точка входа приложения.
+ * Управляет переключением между меню и экраном игры.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            TicTacToeAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            var currentScreen by remember { mutableStateOf<Screen>(Screen.Menu) }
+            val viewModel: GameViewModelImpl = viewModel()
+
+            when (currentScreen) {
+                Screen.Menu -> MenuScreen(object : MenuContract {
+                    override fun onPlayHuman() { currentScreen = Screen.GameHuman }
+                    override fun onPlayComputer() { currentScreen = Screen.GameComputer }
+                    override fun onSettings() { /* TODO */ }
+                })
+
+                Screen.GameHuman -> TicTacToeScreen(
+                    viewModel = viewModel,
+                    onBackToMenu = { currentScreen = Screen.Menu }
+                )
+
+                Screen.GameComputer -> TicTacToeScreen(
+                    viewModel = viewModel,
+                    onBackToMenu = { currentScreen = Screen.Menu }
+                )
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TicTacToeAppTheme {
-        Greeting("Android")
-    }
-}
