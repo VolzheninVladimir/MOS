@@ -1,37 +1,50 @@
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 
-fun main() {
-    val queue = mutableListOf<Int>()
-    val lock = Object()
+class ProducerConsumerWithCoroutines {
 
-    val producer = Thread {
-        var value = 1
-        while (true) {
-            synchronized(lock) {
-                while (queue.size >= 5) {
-                    lock.wait()
+    private val channel = Channel<Int>(5)
+
+    suspend fun start() {
+        coroutineScope {
+            val producers = List(3) { i ->
+                launch {
+                    producer(i + 1)
                 }
-                println("Producer: $value")
-                queue.add(value++)
-                lock.notify()
             }
-            Thread.sleep(300)
+
+            val consumers = List(2) { i ->
+                launch {
+                    consumer(i + 1)
+                }
+            }
+
+            producers.joinAll()
+            channel.close()
+            consumers.joinAll()
         }
     }
 
-    val consumer = Thread {
-        while (true) {
-            synchronized(lock) {
-                while (queue.isEmpty()) {
-                    lock.wait()
-                }
-                val item = queue.removeAt(0)
-                println("Consumer: $item")
-                lock.notify()
-            }
-            Thread.sleep(500)
+    private suspend fun producer(id: Int) {
+        println("Producer $id запущен.")
+        for (i in 1..10) {
+            println("Producer $id → отправляет $i")
+            channel.send(i)
+            delay(500)
         }
+        println("Producer $id завершил создание чисел.")
     }
 
-    producer.start()
-    consumer.start()
+    private suspend fun consumer(id: Int) {
+        println("Consumer $id запущен.")
+        for (item in channel) {
+            println("Consumer $id ← получил $item")
+            delay(1000)
+        }
+        println("Consumer $id завершил обработку чисел.")
+    }
+}
+
+fun main() = runBlocking {
+    ProducerConsumerWithCoroutines().start()
 }

@@ -1,4 +1,4 @@
-package com.example.tictactoeapp.ui
+package com.example.tictactoeapp.ui.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
