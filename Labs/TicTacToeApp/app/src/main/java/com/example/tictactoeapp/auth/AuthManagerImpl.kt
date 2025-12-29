@@ -41,7 +41,7 @@ class AuthManagerImpl(
         _currentUser.value = null
     }
 
-    suspend fun updateStats(winner: Char) {
+    override suspend fun updateStats(winner: Char) {
         val user = _currentUser.value ?: return
 
         val updated = when (winner) {

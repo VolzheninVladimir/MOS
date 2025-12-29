@@ -13,8 +13,6 @@ class ComputerPlayer(
 ) : Player {
 
     override fun makeMove(board: GameBoard): Pair<Int, Int> {
-        // Если стратегия не может выбрать ход (нет пустых клеток) — по контракту это ошибка логики,
-        // но чтобы не падать, вернём (-1, -1) как "невозможный" ход.
         return strategy.chooseMove(board, symbol) ?: (-1 to -1)
     }
 }

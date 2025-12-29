@@ -39,21 +39,18 @@ class GameRulesImpl : GameRules {
     override fun checkWinner(board: GameBoard): Char? {
         val b = board.getBoardSnapshot()
 
-        // Проверка строк
         for (row in 0..2) {
             if (b[row][0] != null && b[row][0] == b[row][1] && b[row][1] == b[row][2]) {
                 return b[row][0]
             }
         }
 
-        // Проверка столбцов
         for (col in 0..2) {
             if (b[0][col] != null && b[0][col] == b[1][col] && b[1][col] == b[2][col]) {
                 return b[0][col]
             }
         }
 
-        // Проверка диагоналей
         if (b[0][0] != null && b[0][0] == b[1][1] && b[1][1] == b[2][2]) return b[0][0]
         if (b[0][2] != null && b[0][2] == b[1][1] && b[1][1] == b[2][0]) return b[0][2]
 

@@ -11,13 +11,10 @@ class MediumStrategy : AiStrategy {
         val snapshot = board.getBoardSnapshot()
         val opponent = if (symbol == 'X') 'O' else 'X'
 
-        // 1. Если можем выиграть — выигрываем
         findWinningMove(snapshot, symbol)?.let { return it }
 
-        // 2. Если соперник может выиграть — блокируем
         findWinningMove(snapshot, opponent)?.let { return it }
 
-        // 3. Иначе fallback на Easy
         return EasyStrategy().chooseMove(board, symbol)
     }
 

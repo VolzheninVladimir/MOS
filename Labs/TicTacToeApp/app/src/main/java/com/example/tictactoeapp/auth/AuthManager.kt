@@ -6,4 +6,5 @@ interface AuthManager {
     val currentUser: StateFlow<User?>
     suspend fun login(username: String): Boolean
     suspend fun logout()
+    suspend fun updateStats(result: Char)
 }

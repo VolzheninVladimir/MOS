@@ -13,12 +13,10 @@ class EasyStrategy : AiStrategy {
     override fun chooseMove(board: GameBoard, symbol: Char): Pair<Int, Int>? {
         val snapshot = board.getBoardSnapshot()
 
-        // 1. Центр
         if (snapshot[1][1] == null) {
             return 1 to 1
         }
 
-        // 2. Углы
         val corners = listOf(
             0 to 0,
             0 to 2,
@@ -31,7 +29,6 @@ class EasyStrategy : AiStrategy {
             }
         }
 
-        // 3. Рёбра
         val edges = listOf(
             0 to 1,
             1 to 0,
@@ -44,7 +41,6 @@ class EasyStrategy : AiStrategy {
             }
         }
 
-        // Нет доступных ходов
         return null
     }
 }
