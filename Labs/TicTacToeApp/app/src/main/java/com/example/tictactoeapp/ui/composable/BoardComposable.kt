@@ -27,21 +27,34 @@ fun BoardComposable(
         for (row in 0..2) {
             Row {
                 for (col in 0..2) {
+
                     Box(
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(110.dp)
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .clickable { onCellClick(row, col) }
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = board[row][col]?.toString() ?: "",
-                            style = MaterialTheme.typography.headlineMedium
-                        )
+                        val value = board[row][col]
+
+                        when (value) {
+                            'X' -> Text(
+                                text = "✕",
+                                fontSize = MaterialTheme.typography.displayLarge.fontSize,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            'O' -> Text(
+                                text = "◯",
+                                fontSize = MaterialTheme.typography.displayLarge.fontSize,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            else -> Text("")
+                        }
                     }
                 }
             }
         }
     }
 }
+

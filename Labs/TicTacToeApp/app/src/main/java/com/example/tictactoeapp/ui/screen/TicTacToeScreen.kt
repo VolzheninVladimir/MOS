@@ -1,54 +1,83 @@
 package com.example.tictactoeapp.ui.screen
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.tictactoeapp.ai.ComputerPlayer
 import com.example.tictactoeapp.ui.composable.BoardComposable
-import com.example.tictactoeapp.ui.viewmodel.GameViewModel
 import com.example.tictactoeapp.ui.composable.ResultDialogComposable
+import com.example.tictactoeapp.ui.viewmodel.GameViewModel
 
-/**
- * Главный экран игры.
- * Добавлена кнопка "Назад в меню".
- */
 @Composable
 fun TicTacToeScreen(
     viewModel: GameViewModel,
-    onBackToMenu: () -> Unit,
-    isComputerGame: Boolean
+    onBackToMenu: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(state.currentPlayer) {
+        if (!state.isGameOver) {
+            val player = viewModel.currentPlayerObject()
+            if (player is ComputerPlayer) {
+                viewModel.makeAIMove()
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .statusBarsPadding()
     ) {
-        BoardComposable(
-            board = state.board,
-            onCellClick = { row, col ->
-                viewModel.makeMove(row, col)
+        AppTitleBar()
 
-                if (isComputerGame) {
-                    viewModel.makeComputerMove()
-                }
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(onClick = onBackToMenu) {
+                Text("Назад")
             }
+            Button(onClick = { viewModel.resetGame() }) {
+                Text("Заново")
+            }
+        }
 
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
-        if (state.isGameOver) {
-            ResultDialogComposable(
-                winner = state.winner,
-                isDraw = state.isDraw,
-                onRestart = { viewModel.resetGame() },
-                onBackToMenu = onBackToMenu
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BoardComposable(
+                board = state.board,
+                onCellClick = { row, col ->
+                    viewModel.makeMove(row, col)
+                }
             )
+
+            if (state.isGameOver) {
+                ResultDialogComposable(
+                    winner = state.winner,
+                    isDraw = state.isDraw,
+                    onRestart = { viewModel.resetGame() },
+                    onBackToMenu = {
+                        viewModel.resetGame()
+                        onBackToMenu()
+                    }
+                )
+            }
         }
     }
 }

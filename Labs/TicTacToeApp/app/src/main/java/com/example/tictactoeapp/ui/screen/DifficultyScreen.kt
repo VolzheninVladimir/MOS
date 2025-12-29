@@ -17,26 +17,10 @@ interface DifficultyContract {
 
 @Composable
 fun DifficultyScreen(contract: DifficultyContract) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Button(
-            onClick = { contract.onEasy() },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
-        ) { Text("Лёгкий") }
-
-        Button(
-            onClick = { contract.onMedium() },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
-        ) { Text("Средний") }
-
-        Button(
-            onClick = { contract.onHard() },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
-        ) { Text("Сложный") }
+    ScreenContainer {
+        WideButton("Лёгкий") { contract.onEasy() }
+        WideButton("Средний") { contract.onMedium() }
+        WideButton("Сложный") { contract.onHard() }
     }
 }
+

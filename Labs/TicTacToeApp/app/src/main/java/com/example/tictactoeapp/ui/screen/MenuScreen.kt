@@ -1,51 +1,61 @@
 package com.example.tictactoeapp.ui.screen
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.ui.unit.sp
 
 interface MenuContract {
-    fun onPlayHuman()
-    fun onPlayComputer()
+    fun onPlay()
     fun onSettings()
+    fun onLogout()
+    fun onStatistics()
+    fun onLeaderboard()
 }
 
-/**
- * Экран меню: выбор режима игры.
- */
 @Composable
-fun MenuScreen(contract: MenuContract) {
-    Column(
+fun MenuScreen(
+    contract: MenuContract,
+    username: String
+) {
+    ScreenContainer {
+
+        Text(
+            text = "Привет, $username!",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
+        MenuButton("Играть") { contract.onPlay() }
+        MenuButton("Настройки") { contract.onSettings() }
+        MenuButton("Статистика") { contract.onStatistics() }
+        MenuButton("Лидерборд") { contract.onLeaderboard() }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedButton(
+            onClick = { contract.onLogout() },
+            modifier = Modifier.fillMaxWidth(0.7f)
+        ) {
+            Text("Выйти")
+        }
+    }
+}
+
+
+@Composable
+private fun MenuButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
         modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxWidth(0.7f)
+            .padding(vertical = 8.dp)
     ) {
-        Button(
-            onClick = { contract.onPlayHuman() },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
-        ) {
-            Text("Играть против человека")
-        }
-
-        Button(
-            onClick = { contract.onPlayComputer() },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
-        ) {
-            Text("Играть против компьютера")
-        }
-
-        Button(
-            onClick = { contract.onSettings() },
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
-        ) {
-            Text("Настройки")
-        }
+        Text(text, fontSize = 18.sp)
     }
 }

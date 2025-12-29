@@ -33,7 +33,7 @@ interface GameController {
      */
     fun makeMove(row: Int, col: Int): Boolean
 
-    fun makeAIMove(): Boolean
+    fun makeAIMove(aiSymbol: Char): Boolean
 
     /**
      * Проверяет состояние игры после хода.
@@ -58,8 +58,8 @@ interface GameController {
 class GameControllerImpl(
     override val board: GameBoard = GameBoardImpl(),
     private val rules: GameRules = GameRulesImpl(),
-    override val playerX: Player = HumanPlayer('X'),
-    override val playerO: Player = HumanPlayer('O')
+    override val playerX: Player,
+    override val playerO: Player
 ) : GameController {
 
     override var currentPlayer: Char = 'X'
@@ -81,15 +81,13 @@ class GameControllerImpl(
         return null
     }
 
-    override fun makeAIMove(): Boolean {
+    override fun makeAIMove(aiSymbol: Char): Boolean {
         val player = if (currentPlayer == 'X') playerX else playerO
 
-        // Если игрок — не компьютер, AI ход невозможен
         if (player !is ComputerPlayer) return false
 
         val (row, col) = player.makeMove(board)
 
-        // Если стратегия вернула (-1, -1) — нет хода
         if (row !in 0..2 || col !in 0..2) return false
 
         val success = board.setCell(row, col, currentPlayer)

@@ -8,44 +8,25 @@ import com.example.tictactoeapp.ai.MediumStrategy
 import com.example.tictactoeapp.core.GameController
 import com.example.tictactoeapp.core.GameControllerImpl
 import com.example.tictactoeapp.core.HumanPlayer
+import com.example.tictactoeapp.core.Player
 import com.example.tictactoeapp.ui.Difficulty
 import com.example.tictactoeapp.ui.GameState
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
-/**
- * ViewModel управляет состоянием игры и связывает ядро с UI.
- */
-class GameViewModelImpl(
-    private val isComputerGame: Boolean,
-    private val difficulty: Difficulty?
-) : ViewModel(), GameViewModel {
+class GameViewModelImpl : ViewModel(), GameViewModel {
 
-    private val controller: GameController =
-        if (isComputerGame) {
-            GameControllerImpl(
-                playerX = HumanPlayer('X'),
-                playerO = ComputerPlayer(
-                    'O',
-                    strategy = when (difficulty) {
-                        Difficulty.EASY -> EasyStrategy()
-                        Difficulty.MEDIUM -> MediumStrategy()
-                        Difficulty.HARD -> HardStrategy()
-                        else -> EasyStrategy()
-                    }
-                )
-            )
-        } else {
-            GameControllerImpl(
-                playerX = HumanPlayer('X'),
-                playerO = HumanPlayer('O')
-            )
-        }
+    private val _gameFinished = MutableSharedFlow<Char>(extraBufferCapacity = 1)
+    override val gameFinished = _gameFinished.asSharedFlow()
+
+    private lateinit var controller: GameController
 
     private val _state = MutableStateFlow(
         GameState(
-            board = controller.board.getBoardSnapshot(),
-            currentPlayer = controller.currentPlayer,
+            board = Array(3) { Array<Char?>(3) { null } },
+            currentPlayer = 'X',
             winner = null,
             isDraw = false,
             isGameOver = false
@@ -53,9 +34,32 @@ class GameViewModelImpl(
     )
     override val state: StateFlow<GameState> = _state
 
+    override fun startNewGame(playerX: Player, playerO: Player) {
+        controller = GameControllerImpl(
+            playerX = playerX,
+            playerO = playerO
+        )
+
+        _state.value = GameState(
+            board = controller.board.getBoardSnapshot(),
+            currentPlayer = controller.currentPlayer,
+            winner = null,
+            isDraw = false,
+            isGameOver = false
+        )
+    }
+
+    override fun currentPlayerObject(): Player {
+        return if (controller.currentPlayer == 'X') controller.playerX else controller.playerO
+    }
+
     private fun updateStateAfterMove() {
         val winner = controller.checkGameStatus()
         val isDraw = (winner == 'D')
+
+        if (winner != null) {
+            _gameFinished.tryEmit(winner)
+        }
 
         _state.value = GameState(
             board = controller.board.getBoardSnapshot(),
@@ -67,15 +71,13 @@ class GameViewModelImpl(
     }
 
     override fun makeMove(row: Int, col: Int) {
-        if (controller.makeMove(row, col)) {
-            updateStateAfterMove()
-        }
+        if (state.value.isGameOver) return
+        if (controller.makeMove(row, col)) updateStateAfterMove()
     }
 
-    override fun makeComputerMove() {
-        if (controller.makeAIMove()) {
-            updateStateAfterMove()
-        }
+    override fun makeAIMove() {
+        if (state.value.isGameOver) return
+        if (controller.makeAIMove(controller.currentPlayer)) updateStateAfterMove()
     }
 
     override fun resetGame() {
